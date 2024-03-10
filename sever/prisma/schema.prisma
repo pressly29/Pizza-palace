@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Size {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum ToppingType {
+  BASIC
+  DELUXE
+}
+
+model Pizza {
+  id        String   @id @default(uuid())
+  size      Size
+  price     Float
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  order     Order[]
+
+  @@map("pizza")
+}
+
+model Topping {
+  id        String      @id @default(uuid())
+  name      String
+  small     Float
+  medium    Float
+  large     Float
+  type      ToppingType
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  @@map("topping")
+}
+
+model Order {
+  id        String    @default(uuid())
+  orderId   String    @unique @map("order_id")
+  pizzaId   String    @map("pizza_id")
+  toppings  String[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  active    Boolean   @default(true)
+  name      String?
+  email     String?
+  phone     String?
+  amount    Float
+  metadata  Json?     @default("{}")
+  pizza     Pizza     @relation(fields: [pizzaId], references: [id])
+
+  @@map("order")
+}
